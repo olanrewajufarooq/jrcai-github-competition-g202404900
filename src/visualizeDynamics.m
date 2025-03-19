@@ -40,7 +40,7 @@ function visualizeDynamics(env, agent, simDuration)
     end
 
     % (Optional) Print out the total number of states and actions.
-    fprintf('Total States: %d. Total Actions: %d\n', size(states, 1), length(actions));
+    % fprintf('Total States: %d. Total Actions: %d\n', size(states, 1), length(actions));
     
     % Set up the figure for animation.
     figure;
