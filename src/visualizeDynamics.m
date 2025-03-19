@@ -1,22 +1,27 @@
 function visualizeDynamics(env, agent, simDuration)
-    % VISUALIZEDYNAMICS Animates the CartPole dynamics along with agent actions.
-    %
-    %   visualizeDynamics(env, agent, simDuration)
-    %
-    % This function simulates one episode using the trained agent and animates the
-    % CartPole dynamics. The total duration of the animation is exactly simDuration
-    % seconds, and the applied actions are displayed.
-    %
-    % The observation is assumed to be a struct with a timeseries field "CartPoleStates"
-    % containing the full state information in the format [4 x 1 x N].
-    
-    % Determine sample time and create a time vector so that the total animation
-    % lasts exactly simDuration seconds.
+% VISUALIZEDYNAMICS Animates the CartPole dynamics along with agent actions.
+%
+%   visualizeDynamics(env, agent, simDuration)
+%
+% This function simulates one episode using the trained agent and animates the
+% CartPole dynamics for exactly simDuration seconds. Both the state evolution
+% and the applied actions are displayed.
+%
+% The observation is assumed to be a struct with a timeseries field "CartPoleStates"
+% containing the full state information in the format [4 x 1 x N], and the actions
+% are stored as a timeseries under the field "CartPoleAction".
+%
+% References:
+%   - MATLAB. (2023). Reinforcement Learning Toolbox Documentation. The MathWorks, Inc.
+%   - Sutton, R. S., & Barto, A. G. (2018). Reinforcement Learning: An Introduction (2nd ed.).
+%     MIT Press.
+
+    % Determine sample time and create a time vector.
     sampleTime = env.Ts;
     timeVec = 0:sampleTime:simDuration;
     numSteps = length(timeVec);
     
-    % Simulate one episode with a maximum of numSteps.
+    % Simulate one episode with a maximum number of steps equal to numSteps.
     simOptions = rlSimulationOptions('MaxSteps', numSteps, 'StopOnError', 'on');
     experience = sim(env, agent, simOptions);
     
@@ -26,14 +31,16 @@ function visualizeDynamics(env, agent, simDuration)
     states = data';          % Transpose to [N x 4]
     
     % Extract action data from the simulation.
-    % The action is assumed to be stored as a timeseries under the field "CartPoleAction".
-    actions = squeeze(experience.Action.CartPoleAction.Data)'; % [N x 1]
+    actions = squeeze(experience.Action.CartPoleAction.Data)'; % Transpose to [N x 1]
     
-    % Verify that the state matrix has the expected dimensions.
+    % Verify that the state matrix has full state information.
     if size(states, 2) < 4
         disp('Dynamics visualization requires full state information.');
         return;
     end
+
+    % (Optional) Print out the total number of states and actions.
+    fprintf('Total States: %d. Total Actions: %d\n', size(states, 1), length(actions));
     
     % Set up the figure for animation.
     figure;
@@ -52,34 +59,34 @@ function visualizeDynamics(env, agent, simDuration)
         text(0, 2.3, sprintf('Time: %.2f s', elapsedTime), ...
              'HorizontalAlignment', 'center', 'FontSize', 12);
         
-        % Use separate indices for state and action.
+        % Map time index to simulation frame indices.
         stateIndex = min(t, size(states, 1));
-        actionIndex = min(t, numel(actions));  % Use the last available action if t exceeds number of actions
+        actionIndex = min(t, numel(actions));
         
         % Extract state variables.
         cartPos = states(stateIndex, 1);
         poleAngle = states(stateIndex, 3);
         action = actions(actionIndex);
         
-        % Define dimensions for visualization.
+        % Define visualization dimensions.
         cartWidth = 0.4;
         cartHeight = 0.2;
         poleLength = 1.0;
         
-        % Draw the cart as a rectangle.
+        % Draw the cart.
         cartX = cartPos - cartWidth/2;
         cartY = 0;
         rectangle('Position', [cartX, cartY, cartWidth, cartHeight], 'FaceColor', [0 0.5 0.5]);
         
-        % Compute the endpoint of the pole using trigonometry.
+        % Compute and draw the pole.
         poleX = cartPos + poleLength * sin(poleAngle);
         poleY = cartY + cartHeight + poleLength * cos(poleAngle);
         line([cartPos, poleX], [cartY + cartHeight, poleY], 'LineWidth', 2, 'Color', 'r');
         
-        % Draw the ground line for reference.
+        % Draw a ground reference line.
         line([-3, 3], [0, 0], 'Color', 'k', 'LineStyle', '--');
         
-        % Display action as a force direction.
+        % Display the action applied at this frame.
         if action == -1
             actionText = '← Left';
         elseif action == 1
@@ -90,7 +97,7 @@ function visualizeDynamics(env, agent, simDuration)
         text(cartPos, cartY - 0.2, sprintf('Action: %s', actionText), ...
              'HorizontalAlignment', 'center', 'FontSize', 10, 'Color', 'b');
         
-        drawnow;  % Update the figure.
-        pause(sampleTime);  % Pause for the sample time.
+        drawnow;           % Update the figure.
+        pause(sampleTime); % Pause for one sample time.
     end
 end

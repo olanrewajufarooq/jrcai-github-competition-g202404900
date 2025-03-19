@@ -10,6 +10,7 @@ function [env, agent, qRepresentation, agentOpts] = env_setup()
     
     % Create the CartPole environment (discrete version)
     env = rlPredefinedEnv('CartPole-Discrete');
+    env.Ts
 
     % Extract observation and action information
     obsInfo = getObservationInfo(env);
@@ -36,15 +37,16 @@ function [env, agent, qRepresentation, agentOpts] = env_setup()
     % Configure agent options excluding the epsilon parameters from the constructor
     agentOpts = rlDQNAgentOptions(...
         'SampleTime', env.Ts, ...
-        'TargetUpdateFrequency', 4, ...          % Update target network every 4 steps
-        'ExperienceBufferLength', 1e4, ...         % Replay buffer capacity
-        'MiniBatchSize', 64, ...                   % Mini-batch size for training
-        'DiscountFactor', 0.99);                   % Discount factor (gamma)
+        "TargetSmoothFactor", 1, ...
+        'TargetUpdateFrequency', 4, ...         % Update target network every 4 steps
+        'MiniBatchSize', 256, ...               % Mini-batch size for training
+        'DiscountFactor', 0.99 ...              % Discount factor (gamma)
+        );                   
 
     % Set epsilon-greedy exploration parameters via the EpsilonGreedyExploration property
     agentOpts.EpsilonGreedyExploration.Epsilon = 1.0;      % Initial exploration rate
     agentOpts.EpsilonGreedyExploration.EpsilonMin = 0.01;    % Minimum exploration rate
-    agentOpts.EpsilonGreedyExploration.EpsilonDecay = 0.995; % Decay factor per episode
+    agentOpts.EpsilonGreedyExploration.EpsilonDecay = 1e-3; % Decay factor per episode
 
     % Create the DQN agent using the Q-value representation and options
     agent = rlDQNAgent(qRepresentation, agentOpts);
