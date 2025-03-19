@@ -87,9 +87,9 @@ function visualizeDynamics(env, agent, simDuration)
         line([-3, 3], [0, 0], 'Color', 'k', 'LineStyle', '--');
         
         % Display the action applied at this frame.
-        if action == -1
+        if action < 0
             actionText = '← Left';
-        elseif action == 1
+        elseif action > 0
             actionText = '→ Right';
         else
             actionText = '⏹ No Force';
