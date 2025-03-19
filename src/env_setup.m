@@ -10,7 +10,6 @@ function [env, agent, qRepresentation, agentOpts] = env_setup()
     
     % Create the CartPole environment (discrete version)
     env = rlPredefinedEnv('CartPole-Discrete');
-    env.Ts
 
     % Extract observation and action information
     obsInfo = getObservationInfo(env);
