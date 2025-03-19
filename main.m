@@ -6,7 +6,7 @@ addpath("src\")
 % ================================
 % Boolean to control retraining
 % ================================
-doTraining = false;  % Set to true if you want to retrain
+doTraining = true;  % Set to true if you want to retrain
 
 % Define path for saving/loading
 if ~exist("data","dir")
@@ -53,7 +53,11 @@ else
     end
 end
 
-% Step 3: Visualize dynamics
+% Step 3: Test the agent
+disp('Starting testing phase...');
+testRewards = testAgent(env, agent, 20);
+
+% Step 4: Visualize dynamics
 disp("Visualizing dynamics...");
 dur = 3;
 visualizeDynamics(env, agent, dur);
