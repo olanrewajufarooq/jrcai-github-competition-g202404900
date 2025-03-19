@@ -1,4 +1,4 @@
-function [env, agent, qRepresentation, agentOpts] = setup()
+function [env, agent, qRepresentation, agentOpts] = env_setup()
     % SETUP Initializes the CartPole environment and configures the DQN agent.
     %
     %   [env, agent, qRepresentation, agentOpts] = setup()
